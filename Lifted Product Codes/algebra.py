@@ -176,3 +176,4 @@ print("Binary AB = 0 ?", np.all((HA @ HB) % 2 == 0))'''
 
 
 
+
