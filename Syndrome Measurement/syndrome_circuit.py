@@ -156,6 +156,45 @@ class SyndromeCircuit:
 
         with open(filename, "w") as f:
             f.write("\n".join(qasm))
+        print(f"QASM circuit saved as {filename}")
 
-        print(f"QASM exported to {filename}")
+    def export_to_stim(self):
+    
+        counter = 1
+        while True:
+            filename = f"syndrome_circuit_{counter:03d}.stim"
+            if not os.path.exists(filename):
+                break
+            counter += 1
+
+        lines = []
+
+        for op in self.operations:
+
+            name = op[0]
+
+            if name == "CNOT":
+                _, c, t = op
+                lines.append(f"CX {c} {t}")
+
+            elif name == "InitZ":
+                _, q = op
+                lines.append(f"R {q}")
+
+            elif name == "InitX":
+                _, q = op
+                lines.append(f"RX {q}")
+
+            elif name == "MeasZ":
+                _, q = op
+                lines.append(f"M {q}")
+
+            elif name == "MeasX":
+                _, q = op
+                lines.append(f"MX {q}")
+
+        with open(filename, "w") as f:
+            f.write("\n".join(lines))
+        print(f"Stim circuit saved as {filename}")
+
 
