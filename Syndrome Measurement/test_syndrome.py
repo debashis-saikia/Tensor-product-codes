@@ -1,7 +1,7 @@
 from SyndromeCircuit import SyndromeCircuit
 
-HX_file = f"C:\\Users\\IISER13\\OneDrive\\Desktop\\QEC_Codes\\HX_matrix_001.npy"
-HZ_file = f"C:\\Users\\IISER13\\OneDrive\\Desktop\\QEC_Codes\\HZ_matrix_001.npy"
+HX_file = f"....HX_matrix_001.npy"
+HZ_file = f"....HZ_matrix_001.npy"
 
 circuit = SyndromeCircuit(HX_file, HZ_file)
 
@@ -18,3 +18,4 @@ for op in circuit.operations[:20]:
 
 circuit.export_qasm("test_syndrome.qasm")
 circuit.export_stim("test_syndrome.stim")
+
