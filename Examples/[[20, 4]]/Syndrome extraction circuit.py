@@ -1,8 +1,8 @@
 from SyndromeCircuit import SyndromeCircuit
 import numpy as np
 
-HX_file = r"C:\Users\IISER13\OneDrive\Desktop\Pavel Panteleev\Tensor Product Codes\HX_matrix_[20, 4].npy"
-HZ_file = r"C:\Users\IISER13\OneDrive\Desktop\Pavel Panteleev\Tensor Product Codes\HZ_matrix_[20, 4].npy"
+HX_file = r"C:....\HX_matrix_[20, 4].npy"
+HZ_file = r"C:....\HZ_matrix_[20, 4].npy"
 
 circuit = SyndromeCircuit(HX_file, HZ_file)
 print("HX shape:", circuit.Hx.shape)
