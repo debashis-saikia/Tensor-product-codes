@@ -1,0 +1,321 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{mathtools}
+\usepackage{bm}
+
+\title{Theoretical Interpretation of a Lifted Product Code Implementation}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Overview}
+
+The lifted product construction defines a chain complex over a group algebra
+
+\begin{equation}
+R = \mathbb{F}_2[G]
+\end{equation}
+
+where $G$ is a finite group. Given matrices
+
+\begin{equation}
+A \in R^{m_A \times n_A}, \quad B \in R^{m_B \times n_B},
+\end{equation}
+
+we construct a 3-term chain complex:
+
+\begin{equation}
+R^{n_A n_B}
+\overset{\partial_2}{\longrightarrow}
+R^{m_A n_B} \oplus R^{n_A m_B}
+\overset{\partial_1}{\longrightarrow}
+R^{m_A m_B}.
+\end{equation}
+
+The boundary maps are:
+
+\begin{equation}
+\partial_2 =
+\begin{bmatrix}
+A \otimes I \
+I \otimes B
+\end{bmatrix},
+\quad
+\partial_1 =
+\begin{bmatrix}
+I \otimes B & A \otimes I
+\end{bmatrix}.
+\end{equation}
+
+The CSS code is defined as:
+
+\begin{equation}
+H_X = \partial_1, \quad H_Z = \partial_2^{T}.
+\end{equation}
+
+\section{Finite Group Representation}
+
+\subsection{Code}
+\begin{verbatim}
+class FiniteGroup:
+def **init**(self, mul_table):
+self.mul = mul_table
+self.n = len(mul_table)
+\end{verbatim}
+
+\subsection{Theory}
+
+This defines a finite group
+
+\begin{equation}
+G = {g_0, \dots, g_{L-1}}
+\end{equation}
+
+with multiplication:
+
+\begin{equation}
+g_i \cdot g_j = g_{\text{mul}[i][j]}.
+\end{equation}
+
+The integer $L = |G|$ is stored as:
+
+\begin{equation}
+L = \texttt{self.n}.
+\end{equation}
+
+\section{Group Algebra Elements}
+
+\subsection{Code}
+\begin{verbatim}
+class GroupAlgebraElement:
+def **init**(self, coeffs, group):
+self.coeffs = np.array(coeffs) % 2
+\end{verbatim}
+
+\subsection{Theory}
+
+Each element represents:
+
+\begin{equation}
+a = \sum_{g \in G} a_g g, \quad a_g \in \mathbb{F}_2.
+\end{equation}
+
+The vector representation is:
+
+\begin{equation}
+(a_{g_0}, a_{g_1}, \dots, a_{g_{L-1}}).
+\end{equation}
+
+\subsection{Addition}
+
+\begin{verbatim}
+return self.coeffs ^ other.coeffs
+\end{verbatim}
+
+\begin{equation}
+(a + b)_g = a_g + b_g \mod 2.
+\end{equation}
+
+\subsection{Multiplication}
+
+\begin{verbatim}
+k = G.mul[i][j]
+result[k] ^= 1
+\end{verbatim}
+
+This implements:
+
+\begin{equation}
+\left(\sum a_g g\right)\left(\sum b_h h\right)
+=\sum_{g,h} a_g b_h (g h),
+\end{equation}
+
+which matches the group algebra multiplication:
+
+\begin{equation}
+ab = \sum_{x \in G} \left( \sum_{gh = x} a_g b_h \right) x.
+\end{equation}
+
+\section{Left and Right Module Actions}
+
+\begin{verbatim}
+def right_mul(self, other):
+def left_mul(self, other):
+\end{verbatim}
+
+\subsection{Theory}
+
+We distinguish:
+\begin{itemize}
+\item Right multiplication: $a \cdot b$
+\item Left multiplication: $b \cdot a$
+\end{itemize}
+
+This is essential because:
+\begin{itemize}
+\item $A$ is a \textbf{right} $R$-module
+\item $B$ is a \textbf{left} $R$-module
+\end{itemize}
+
+\section{Matrices over the Group Algebra}
+
+\begin{verbatim}
+class GroupAlgebraMatrix:
+def **init**(self, data):
+\end{verbatim}
+
+\subsection{Theory}
+
+Represents matrices:
+
+\begin{equation}
+A \in R^{m_A \times n_A}, \quad B \in R^{m_B \times n_B}.
+\end{equation}
+
+Each entry lies in $\mathbb{F}_2[G]$.
+
+\section{Regular Representations}
+
+\subsection{Right Regular Representation}
+
+\begin{verbatim}
+def right_regular_matrix(ga):
+\end{verbatim}
+
+\begin{equation}
+\rho_R(g): e_i \mapsto e_{i g}.
+\end{equation}
+
+\begin{equation}
+M_{j,i} = 1 \quad \text{if } j = i g.
+\end{equation}
+
+\subsection{Left Regular Representation}
+
+\begin{verbatim}
+def left_regular_matrix(ga):
+\end{verbatim}
+
+\begin{equation}
+\rho_L(g): e_i \mapsto e_{g i}.
+\end{equation}
+
+\section{Lifting to Binary Matrices}
+
+\begin{verbatim}
+def lift_matrix(GA, side="right"):
+\end{verbatim}
+
+\subsection{Theory}
+
+Each element of $\mathbb{F}_2[G]$ is replaced by its matrix representation:
+
+\begin{equation}
+\mathbb{F}_2[G] \cong \mathbb{F}_2^{L \times L}.
+\end{equation}
+
+Thus:
+
+\begin{equation}
+A \mapsto \widetilde{A} \in \mathbb{F}_2^{(mL) \times (nL)}.
+\end{equation}
+
+\section{Tensor Product Construction}
+
+\subsection{Code}
+\begin{verbatim}
+A_kron = np.kron(HA, IB)
+B_kron = np.kron(IA, HB)
+\end{verbatim}
+
+\subsection{Theory}
+
+These correspond to:
+
+\begin{equation}
+A \otimes I, \quad I \otimes B.
+\end{equation}
+
+\section{Boundary Operator $\partial_2$}
+
+\begin{verbatim}
+self.d2 = np.vstack([A_kron, B_kron])
+\end{verbatim}
+
+\begin{equation}
+\partial_2 =
+\begin{bmatrix}
+A \otimes I \
+I \otimes B
+\end{bmatrix}.
+\end{equation}
+
+\section{Boundary Operator $\partial_1$}
+
+\begin{verbatim}
+left_block  = np.kron(ImA, HB)
+right_block = np.kron(HA, ImB)
+\end{verbatim}
+
+\begin{equation}
+\partial_1 =
+\begin{bmatrix}
+I \otimes B & A \otimes I
+\end{bmatrix}.
+\end{equation}
+
+\section{CSS Code Construction}
+
+\begin{verbatim}
+self.HX = self.d1
+self.HZ = self.d2.T
+\end{verbatim}
+
+\begin{equation}
+H_X = \partial_1, \quad H_Z = \partial_2^T.
+\end{equation}
+
+\section{Chain Complex Condition}
+
+\begin{verbatim}
+HX @ HZ.T == 0
+\end{verbatim}
+
+\begin{equation}
+\partial_1 \circ \partial_2 = 0.
+\end{equation}
+
+\section{Code Parameters}
+
+\subsection{Length}
+
+\begin{equation}
+n = n_A n_B |G|.
+\end{equation}
+
+\subsection{Dimension}
+
+\begin{verbatim}
+k = n - rank(HX) - rank(HZ)
+\end{verbatim}
+
+\begin{equation}
+k = \dim \ker \partial_1 - \dim \operatorname{im} \partial_2.
+\end{equation}
+
+\section{Conclusion}
+
+Each component of the implementation corresponds exactly to the lifted product construction:
+\begin{itemize}
+\item Group algebra $\mathbb{F}_2[G]$
+\item Tensor product over $R$
+\item Boundary maps $\partial_1, \partial_2$
+\item CSS construction
+\end{itemize}
+
+Thus the code is a faithful computational realization of the lifted product framework.
+
+\end{document}
